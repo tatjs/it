@@ -1,0 +1,55 @@
+import java.util.ArrayList;
+import java.util.List;
+
+public class BullyAlgorithm {
+
+    private int processId;
+    private List<Integer> processes;
+
+    public BullyAlgorithm(int processId, List<Integer> processes) {
+        this.processId = processId;
+        this.processes = processes;
+    }
+
+    public int run() {
+        boolean isLeader = true;
+
+        for (int i = processId + 1; i < processes.size(); i++) {
+            if (processes.get(i) > processId) {
+                System.out.println("Process " + processId + " sends an election message to process " + processes.get(i));
+                isLeader = false;
+            }
+        }
+
+        if (!isLeader) {
+            for (int i = processId + 1; i < processes.size(); i++) {
+                if (processes.get(i) > processId) {
+                    System.out.println("Process " + processes.get(i) + " acknowledges the election message from process " + processId);
+                    BullyAlgorithm subBully = new BullyAlgorithm(processes.get(i), processes);
+                    int subLeader = subBully.run();
+                    if (subLeader != processes.get(i)) {
+                        System.out.println("Process " + processes.get(i) + " forwards the leader message to process " + processId);
+                        return subLeader;
+                    }
+                }
+            }
+        }
+
+        System.out.println("Process " + processId + " is the leader");
+        return processId;
+    }
+
+    public static void main(String[] args) {
+        List<Integer> processes = new ArrayList<Integer>();
+        processes.add(3);
+        processes.add(7);
+        processes.add(2);
+        processes.add(5);
+        processes.add(1);
+        processes.add(9);
+
+        BullyAlgorithm bully = new BullyAlgorithm(2, processes);
+        int leader = bully.run();
+        System.out.println("Leader is: " + leader);
+    }
+}
